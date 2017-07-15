@@ -1,0 +1,4 @@
+<resources>
+    <string name="app_name">SimpleToDo</string>
+    <string name="addItemHint">Enter a new item</string>
+</resources>
