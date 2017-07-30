@@ -1,4 +1,14 @@
 <resources>
     <string name="app_name">SimpleToDo</string>
     <string name="addItemHint">Enter a new item</string>
+    <string name="title_activity_task_details">Task Details</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="task_name_title_label">Task</string>
+    <string name="task_name_hint">Enter task </string>
+    <string name="task_details_label">Details</string>
+    <string name="task_completed_label">Completed</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
 </resources>
