@@ -1,5 +1,8 @@
 package com.codepath.simpletodo;
 
+import android.app.Activity;
+import android.content.Context;
+import android.content.Intent;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentStatePagerAdapter;
@@ -13,17 +16,25 @@ import java.util.List;
 import java.util.UUID;
 
 public class TaskPagerActivity extends AppCompatActivity {
+    public static final String EXTRA_TASK_ID = "taskId";
     private ViewPager viewPager;
+    private TaskDao taskDao;
+
+    public static Intent newIntent(Context context, UUID taskId) {
+        Intent intent = new Intent(context, TaskPagerActivity.class);
+        intent.putExtra(EXTRA_TASK_ID, taskId);
+        return intent;
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_task_pager);
         viewPager = (ViewPager) findViewById(R.id.task_view_pager);
-        viewPager.setAdapter(new TaskViewPagerAdapter(getSupportFragmentManager(), Task.getTasks()));
-        UUID taskId = (UUID) getIntent().getSerializableExtra(TaskDetailsFragment.ARG_TASK_ID);
-        Log.i("TaskPagerActivity", "TaskId selected = " + Task.taskPosition(taskId));
-        viewPager.setCurrentItem(Task.taskPosition(taskId));
+        taskDao = TaskDao.instance();
+        viewPager.setAdapter(new TaskViewPagerAdapter(getSupportFragmentManager(), taskDao.getTasks()));
+        UUID taskId = (UUID) getIntent().getSerializableExtra(EXTRA_TASK_ID);
+        //viewPager.setCurrentItem(Task.taskPosition(taskId));
     }
 
     private class TaskViewPagerAdapter extends FragmentStatePagerAdapter {

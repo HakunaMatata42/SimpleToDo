@@ -28,6 +28,7 @@ import java.util.UUID;
 public class TaskDetailsFragment extends Fragment {
 
     private Task task;
+    private TaskDao taskDao;
     private EditText etTaskName;
     private Button btnTaskCompletionDate;
     private CheckBox chbIsTaskComplete;
@@ -55,7 +56,8 @@ public class TaskDetailsFragment extends Fragment {
         super.onCreate(savedInstanceState);
         UUID taskId = (UUID) getArguments().getSerializable(ARG_TASK_ID);
         Log.i(TAG, "onCreate taskId " + taskId);
-        task = Task.get(taskId);
+        taskDao = TaskDao.instance();
+        task = taskDao.getTaskById(taskId);
     }
 
     @Override
