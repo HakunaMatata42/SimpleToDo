@@ -51,7 +51,7 @@ public class TaskListFragment extends Fragment {
 
         @Override
         public void onClick(View v) {
-            Intent intent = new Intent(getActivity(), TaskDetailsActivity.class);
+            Intent intent = new Intent(getActivity(), TaskPagerActivity.class);
             intent.putExtra(TaskDetailsFragment.ARG_TASK_ID, task.getId());
             Log.i(TAG, "Setting taskId to " + task.getId());
             startActivity(intent);

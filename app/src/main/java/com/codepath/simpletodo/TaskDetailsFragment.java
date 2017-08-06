@@ -1,9 +1,12 @@
 package com.codepath.simpletodo;
 
 
+import android.app.Activity;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
@@ -31,6 +34,8 @@ public class TaskDetailsFragment extends Fragment {
 
     public static final String ARG_TASK_ID = "task_id";
     private static final String TAG = "TaskDetailsFragment";
+    private static final String DATE_DIALOG_FRAGMENT_TAG = "DateDialog";
+    private static final int REQUEST_DATE = 0;
 
     public TaskDetailsFragment() {
         // Required empty public constructor
@@ -62,13 +67,28 @@ public class TaskDetailsFragment extends Fragment {
         etTaskName.addTextChangedListener(new TaskNameTextWatcher(task));
 
         btnTaskCompletionDate = (Button) view.findViewById(R.id.btnTaskCompletionDate);
-        btnTaskCompletionDate.setText(task.getDate().toString());
-        btnTaskCompletionDate.setEnabled(false);
+        updateDate();
+        btnTaskCompletionDate.setOnClickListener(new DateButtonClickListener());
 
         chbIsTaskComplete = (CheckBox) view.findViewById(R.id.chbIsTaskComplete);
         chbIsTaskComplete.setChecked(task.isComplete());
         chbIsTaskComplete.setOnCheckedChangeListener(new TaskCompleteOnCheckedChangeListener(task));
         return view;
+    }
+
+    private void updateDate() {
+        btnTaskCompletionDate.setText(task.getDate().toString());
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        Log.i(TAG, "onActivityResult requestCode = " + requestCode + " resultCode = " + resultCode);
+        if (resultCode != Activity.RESULT_OK) return;
+        if (requestCode == REQUEST_DATE) {
+            Date date = (Date) data.getSerializableExtra(DateTimePickerFragment.EXTRA_SELECTED_DATE);
+            task.setDate(date);
+            updateDate();
+        }
     }
 
     private class TaskNameTextWatcher implements TextWatcher {
@@ -106,6 +126,16 @@ public class TaskDetailsFragment extends Fragment {
         @Override
         public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
             task.setComplete(isChecked);
+        }
+    }
+
+    private class DateButtonClickListener implements View.OnClickListener {
+        @Override
+        public void onClick(View v) {
+            FragmentManager fragmentManager =  getFragmentManager();
+            DateTimePickerFragment dateTimePickerFragment = DateTimePickerFragment.newInstance(task.getDate());
+            dateTimePickerFragment.setTargetFragment(TaskDetailsFragment.this, REQUEST_DATE);
+            dateTimePickerFragment.show(fragmentManager, DATE_DIALOG_FRAGMENT_TAG);
         }
     }
 }
