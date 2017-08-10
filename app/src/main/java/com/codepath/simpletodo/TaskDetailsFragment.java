@@ -18,6 +18,8 @@ import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.EditText;
 
+import com.codepath.simpletodo.database.TaskDao;
+
 import java.util.Date;
 import java.util.UUID;
 
@@ -36,7 +38,7 @@ public class TaskDetailsFragment extends Fragment {
     public static final String ARG_TASK_ID = "task_id";
     private static final String TAG = "TaskDetailsFragment";
     private static final String DATE_DIALOG_FRAGMENT_TAG = "DateDialog";
-    private static final int REQUEST_DATE = 0;
+    private static final int REQUEST_CODE_DATE = 0;
 
     public TaskDetailsFragment() {
         // Required empty public constructor
@@ -56,8 +58,16 @@ public class TaskDetailsFragment extends Fragment {
         super.onCreate(savedInstanceState);
         UUID taskId = (UUID) getArguments().getSerializable(ARG_TASK_ID);
         Log.i(TAG, "onCreate taskId " + taskId);
-        taskDao = TaskDao.instance();
+        taskDao = TaskDao.getInstance(getActivity());
         task = taskDao.getTaskById(taskId);
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        taskDao = TaskDao.getInstance(getActivity());
+        Log.i(TAG, "onPause b4 calling TaskDao.updateTask id = " + task.getUuid() + " date = "+ task.getDate());
+        taskDao.updateTask(task);
     }
 
     @Override
@@ -86,8 +96,9 @@ public class TaskDetailsFragment extends Fragment {
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         Log.i(TAG, "onActivityResult requestCode = " + requestCode + " resultCode = " + resultCode);
         if (resultCode != Activity.RESULT_OK) return;
-        if (requestCode == REQUEST_DATE) {
+        if (requestCode == REQUEST_CODE_DATE) {
             Date date = (Date) data.getSerializableExtra(DateTimePickerFragment.EXTRA_SELECTED_DATE);
+            Log.i(TAG, "setting date = " + date);
             task.setDate(date);
             updateDate();
         }
@@ -136,7 +147,7 @@ public class TaskDetailsFragment extends Fragment {
         public void onClick(View v) {
             FragmentManager fragmentManager =  getFragmentManager();
             DateTimePickerFragment dateTimePickerFragment = DateTimePickerFragment.newInstance(task.getDate());
-            dateTimePickerFragment.setTargetFragment(TaskDetailsFragment.this, REQUEST_DATE);
+            dateTimePickerFragment.setTargetFragment(TaskDetailsFragment.this, REQUEST_CODE_DATE);
             dateTimePickerFragment.show(fragmentManager, DATE_DIALOG_FRAGMENT_TAG);
         }
     }

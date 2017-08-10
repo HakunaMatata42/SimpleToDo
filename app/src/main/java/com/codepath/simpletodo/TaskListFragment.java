@@ -7,7 +7,6 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -15,6 +14,8 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+
+import com.codepath.simpletodo.database.TaskDao;
 
 import java.util.List;
 import java.util.UUID;
@@ -45,7 +46,7 @@ public class TaskListFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_task_list, container, false);
         recyclerView = (RecyclerView) view.findViewById(R.id.tasklist_recycler_view);
         recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
-        taskDao = TaskDao.instance();
+        taskDao = TaskDao.getInstance(getActivity());
         recyclerView.setAdapter(new TaskAdapter(taskDao.getTasks()));
         return view;
     }
@@ -62,7 +63,7 @@ public class TaskListFragment extends Fragment {
             case R.id.new_task:
                 Task task = new Task();
                 taskDao.addTask(task);
-                startTaskPagerActivity(task.getId());
+                startTaskPagerActivity(task.getUuid());
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
@@ -87,7 +88,7 @@ public class TaskListFragment extends Fragment {
 
         @Override
         public void onClick(View v) {
-            startTaskPagerActivity(task.getId());
+            startTaskPagerActivity(task.getUuid());
         }
 
         public void bind(Task task) {
