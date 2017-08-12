@@ -11,5 +11,7 @@
     <string name="task_time_label">Time:</string>
 
     <string name="new_task_label">New Task</string>
+    <string name="delete_task_label">Delete Task</string>
+    <string name="save_task_label">Save Task</string>
 
 </resources>

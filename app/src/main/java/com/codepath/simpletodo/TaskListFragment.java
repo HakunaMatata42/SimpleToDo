@@ -7,6 +7,7 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -27,8 +28,8 @@ import java.util.UUID;
 public class TaskListFragment extends Fragment {
 
     private static final String TAG = "TaskListFragment";
-    //private static final String EXTRA_TASK_ID = "taskId";
     private RecyclerView recyclerView;
+    private TaskAdapter taskAdapter;
     private TaskDao taskDao;
     public TaskListFragment() {
         // Required empty public constructor
@@ -46,9 +47,20 @@ public class TaskListFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_task_list, container, false);
         recyclerView = (RecyclerView) view.findViewById(R.id.tasklist_recycler_view);
         recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
-        taskDao = TaskDao.getInstance(getActivity());
-        recyclerView.setAdapter(new TaskAdapter(taskDao.getTasks()));
+        updateUI();
         return view;
+    }
+
+    private void updateUI() {
+        taskDao = TaskDao.getInstance(getActivity());
+        List<Task> tasks = taskDao.getTasks();
+        if (taskAdapter == null) {
+            taskAdapter = new TaskAdapter(tasks);
+            recyclerView.setAdapter(new TaskAdapter(taskDao.getTasks()));
+        } else {
+            taskAdapter.setTasks(tasks);
+            taskAdapter.notifyDataSetChanged();
+        }
     }
 
     @Override
@@ -88,13 +100,14 @@ public class TaskListFragment extends Fragment {
 
         @Override
         public void onClick(View v) {
+            Log.i(TAG, "onClick taskId = " + task.getUuid());
             startTaskPagerActivity(task.getUuid());
         }
 
         public void bind(Task task) {
             this.task = task;
-            txvTaskName.setText(task.getName());
-            txvTaskCompletionDate.setText(task.getDate().toString());
+            txvTaskName.setText(this.task.getName());
+            txvTaskCompletionDate.setText(this.task.getDate().toString());
         }
     }
 
@@ -102,6 +115,10 @@ public class TaskListFragment extends Fragment {
         private List<Task> tasks;
 
         public TaskAdapter(List<Task> tasks) {
+            this.tasks = tasks;
+        }
+
+        public void setTasks(List<Task> tasks) {
             this.tasks = tasks;
         }
 
@@ -114,6 +131,7 @@ public class TaskListFragment extends Fragment {
 
         @Override
         public void onBindViewHolder(ListItemTaskViewHolder holder, int position) {
+            Log.i(TAG, "onBindViewHolder position = " + position);
             holder.bind(tasks.get(position));
         }
 

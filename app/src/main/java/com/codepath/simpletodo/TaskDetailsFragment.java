@@ -6,11 +6,13 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
@@ -34,10 +36,14 @@ public class TaskDetailsFragment extends Fragment {
     private EditText etTaskName;
     private Button btnTaskCompletionDate;
     private CheckBox chbIsTaskComplete;
+    private boolean isTaskNameUpdated;
+    private boolean isTaskDateUpdated;
+    private boolean isTaskCompletionStatusUpdated;
 
     public static final String ARG_TASK_ID = "task_id";
     private static final String TAG = "TaskDetailsFragment";
     private static final String DATE_DIALOG_FRAGMENT_TAG = "DateDialog";
+    private static final String ALERT_DIALOG_FRAGMENT_TAG = "AlertDialog";
     private static final int REQUEST_CODE_DATE = 0;
 
     public TaskDetailsFragment() {
@@ -56,6 +62,10 @@ public class TaskDetailsFragment extends Fragment {
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setHasOptionsMenu(true);
+        isTaskNameUpdated = false;
+        isTaskDateUpdated = false;
+        isTaskCompletionStatusUpdated = false;
         UUID taskId = (UUID) getArguments().getSerializable(ARG_TASK_ID);
         Log.i(TAG, "onCreate taskId " + taskId);
         taskDao = TaskDao.getInstance(getActivity());
@@ -63,33 +73,61 @@ public class TaskDetailsFragment extends Fragment {
     }
 
     @Override
-    public void onPause() {
-        super.onPause();
-        taskDao = TaskDao.getInstance(getActivity());
-        Log.i(TAG, "onPause b4 calling TaskDao.updateTask id = " + task.getUuid() + " date = "+ task.getDate());
-        taskDao.updateTask(task);
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        super.onCreateOptionsMenu(menu, inflater);
+        inflater.inflate(R.menu.menu_task_details, menu);
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_task_details, container, false);
+        isTaskNameUpdated = false;
+        isTaskDateUpdated = false;
+        isTaskCompletionStatusUpdated = false;
+
         etTaskName = (EditText) view.findViewById(R.id.etTaskName);
         etTaskName.setText(task.getName());
-        etTaskName.addTextChangedListener(new TaskNameTextWatcher(task));
+        etTaskName.addTextChangedListener(new TaskNameTextWatcher());
 
         btnTaskCompletionDate = (Button) view.findViewById(R.id.btnTaskCompletionDate);
-        updateDate();
+        updateDateUi();
         btnTaskCompletionDate.setOnClickListener(new DateButtonClickListener());
 
         chbIsTaskComplete = (CheckBox) view.findViewById(R.id.chbIsTaskComplete);
         chbIsTaskComplete.setChecked(task.isComplete());
-        chbIsTaskComplete.setOnCheckedChangeListener(new TaskCompleteOnCheckedChangeListener(task));
+        chbIsTaskComplete.setOnCheckedChangeListener(new TaskCompleteOnCheckedChangeListener());
         return view;
     }
 
-    private void updateDate() {
-        btnTaskCompletionDate.setText(task.getDate().toString());
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.save_task:
+                taskDao = TaskDao.getInstance(getActivity());
+                //task.setName(etTaskName.getText().toString());
+                //task.setComplete(chbIsTaskComplete.isChecked());
+                taskDao.updateTask(task);
+                startActivity(TaskListActivity.newIntent(getActivity()));
+                return true;
+
+            case R.id.delete_task:
+                taskDao = TaskDao.getInstance(getActivity());
+                taskDao.deleteTask(task);
+                startActivity(TaskListActivity.newIntent(getActivity()));
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        if (isTaskNameUpdated || isTaskDateUpdated || isTaskCompletionStatusUpdated) {
+            Log.i(TAG, "onPause() calling alert dialog");
+            //showAlertDialog();
+        }
     }
 
     @Override
@@ -98,46 +136,37 @@ public class TaskDetailsFragment extends Fragment {
         if (resultCode != Activity.RESULT_OK) return;
         if (requestCode == REQUEST_CODE_DATE) {
             Date date = (Date) data.getSerializableExtra(DateTimePickerFragment.EXTRA_SELECTED_DATE);
-            Log.i(TAG, "setting date = " + date);
             task.setDate(date);
-            updateDate();
+            updateDateUi();
         }
+    }
+
+    private void updateDateUi() {
+        btnTaskCompletionDate.setText(task.getDate().toString());
     }
 
     private class TaskNameTextWatcher implements TextWatcher {
 
-        private Task task;
-
-        public TaskNameTextWatcher(Task task) {
-            this.task = task;
-        }
-
         @Override
-        public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-
-        }
+        public void beforeTextChanged(CharSequence s, int start, int count, int after) { }
 
         @Override
         public void onTextChanged(CharSequence s, int start, int before, int count) {
-            task.setName(s.toString());
         }
 
         @Override
         public void afterTextChanged(Editable s) {
-
+            Log.i(TAG, "afterTextChanged");
+            isTaskNameUpdated =  true;
+            task.setName(s.toString());
         }
     }
 
     private class TaskCompleteOnCheckedChangeListener implements CompoundButton.OnCheckedChangeListener {
 
-        private Task task;
-
-        public TaskCompleteOnCheckedChangeListener(Task task) {
-            this.task = task;
-        }
-
         @Override
         public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+            isTaskCompletionStatusUpdated = true;
             task.setComplete(isChecked);
         }
     }
@@ -145,10 +174,16 @@ public class TaskDetailsFragment extends Fragment {
     private class DateButtonClickListener implements View.OnClickListener {
         @Override
         public void onClick(View v) {
-            FragmentManager fragmentManager =  getFragmentManager();
+            Log.i(TAG, "DateButtonClickListener.onClick setting isTaskDateUpdated ");
+            isTaskDateUpdated = true;
             DateTimePickerFragment dateTimePickerFragment = DateTimePickerFragment.newInstance(task.getDate());
             dateTimePickerFragment.setTargetFragment(TaskDetailsFragment.this, REQUEST_CODE_DATE);
-            dateTimePickerFragment.show(fragmentManager, DATE_DIALOG_FRAGMENT_TAG);
+            dateTimePickerFragment.show(getFragmentManager(), DATE_DIALOG_FRAGMENT_TAG);
         }
+    }
+
+    private void showAlertDialog(String title) {
+        TaskDetailAlertDialogFragment taskDetailAlertDialogFragment = TaskDetailAlertDialogFragment.newInstance(title);
+        taskDetailAlertDialogFragment.show(getFragmentManager(), ALERT_DIALOG_FRAGMENT_TAG);
     }
 }

@@ -8,6 +8,7 @@ import android.support.v4.app.FragmentStatePagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 
 import com.codepath.simpletodo.database.TaskDao;
 
@@ -17,7 +18,6 @@ import java.util.UUID;
 public class TaskPagerActivity extends AppCompatActivity {
     public static final String EXTRA_TASK_ID = "taskId";
     private ViewPager viewPager;
-    private TaskDao taskDao;
 
     public static Intent newIntent(Context context, UUID taskId) {
         Intent intent = new Intent(context, TaskPagerActivity.class);
@@ -30,10 +30,19 @@ public class TaskPagerActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_task_pager);
         viewPager = (ViewPager) findViewById(R.id.task_view_pager);
-        taskDao = TaskDao.getInstance(this);
-        viewPager.setAdapter(new TaskViewPagerAdapter(getSupportFragmentManager(), taskDao.getTasks()));
+        List<Task> tasks = TaskDao.getInstance(this).getTasks();
+        viewPager.setAdapter(new TaskViewPagerAdapter(getSupportFragmentManager(), tasks));
+        setCurrentItem(tasks);
+    }
+
+    private void setCurrentItem(List<Task> tasks) {
         UUID taskId = (UUID) getIntent().getSerializableExtra(EXTRA_TASK_ID);
-        //viewPager.setCurrentItem(Task.taskPosition(taskId));
+        for (int i = 0; i < tasks.size(); i++) {
+            if (tasks.get(i).getUuid().compareTo(taskId) == 0) {
+                viewPager.setCurrentItem(i);
+                break;
+            }
+        }
     }
 
     private class TaskViewPagerAdapter extends FragmentStatePagerAdapter {
@@ -55,5 +64,4 @@ public class TaskPagerActivity extends AppCompatActivity {
             return tasks.size();
         }
     }
-
 }

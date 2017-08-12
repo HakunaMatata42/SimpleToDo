@@ -54,10 +54,17 @@ public class TaskDao {
         String uuidString = task.getUuid().toString();
         ContentValues contentValues = createTaskContentValues(task);
         Log.i("TaskDetailsFragment", "TaskDao.updateTask id = " + task.getUuid() + "task date = " + task.getDate());
+        Log.i("TaskDetailsFragment", "contentValues date - " + contentValues.getAsString(TaskTable.Cols.COMPLETION_DATE));
         dataBase.update(TaskTable.NAME,
                 contentValues,
                 TaskTable.Cols.UUID + " = ?",
                 new String[] { uuidString });
+    }
+
+    public void deleteTask(Task task) {
+        String whereClause = TaskTable.Cols.UUID + " = ?";
+        String[] whereArgs = new String[] {task.getUuid().toString()};
+        dataBase.delete(TaskTable.NAME, whereClause, whereArgs);
     }
 
     public Task getTaskById(UUID taskId) {
@@ -77,7 +84,7 @@ public class TaskDao {
         ContentValues contentValues = new ContentValues();
         contentValues.put(TaskTable.Cols.UUID, task.getUuid().toString());
         contentValues.put(TaskTable.Cols.NAME, task.getName());
-        contentValues.put(TaskTable.Cols.COMPLETION_DATE, task.getDate().toString());
+        contentValues.put(TaskTable.Cols.COMPLETION_DATE, task.getDate().getTime());
         contentValues.put(TaskTable.Cols.COMPLETED, task.isComplete());
         return contentValues;
     }
