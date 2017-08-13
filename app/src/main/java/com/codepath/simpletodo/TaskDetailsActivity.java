@@ -13,11 +13,4 @@ public class TaskDetailsActivity extends SingleFragmentActivity {
         Log.i(TAG, "TaskId == " + taskId);
         return TaskDetailsFragment.newInstance(taskId);
     }
-
-    @Override
-    public void onBackPressed() {
-        Log.i(TAG, "onBackPressed()");
-        TaskDetailAlertDialogFragment taskDetailAlertDialogFragment = TaskDetailAlertDialogFragment.newInstance("Back");
-        taskDetailAlertDialogFragment.show(getSupportFragmentManager(), "BackTitle");
-    }
 }

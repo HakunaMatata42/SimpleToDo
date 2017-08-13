@@ -103,10 +103,12 @@ public class TaskDetailsFragment extends Fragment {
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
+            case android.R.id.home:
+                showAlertDialog("Are you sure?");
+                return true;
+
             case R.id.save_task:
                 taskDao = TaskDao.getInstance(getActivity());
-                //task.setName(etTaskName.getText().toString());
-                //task.setComplete(chbIsTaskComplete.isChecked());
                 taskDao.updateTask(task);
                 startActivity(TaskListActivity.newIntent(getActivity()));
                 return true;
@@ -116,17 +118,9 @@ public class TaskDetailsFragment extends Fragment {
                 taskDao.deleteTask(task);
                 startActivity(TaskListActivity.newIntent(getActivity()));
                 return true;
+
             default:
                 return super.onOptionsItemSelected(item);
-        }
-    }
-
-    @Override
-    public void onPause() {
-        super.onPause();
-        if (isTaskNameUpdated || isTaskDateUpdated || isTaskCompletionStatusUpdated) {
-            Log.i(TAG, "onPause() calling alert dialog");
-            //showAlertDialog();
         }
     }
 
@@ -156,7 +150,6 @@ public class TaskDetailsFragment extends Fragment {
 
         @Override
         public void afterTextChanged(Editable s) {
-            Log.i(TAG, "afterTextChanged");
             isTaskNameUpdated =  true;
             task.setName(s.toString());
         }
@@ -174,7 +167,6 @@ public class TaskDetailsFragment extends Fragment {
     private class DateButtonClickListener implements View.OnClickListener {
         @Override
         public void onClick(View v) {
-            Log.i(TAG, "DateButtonClickListener.onClick setting isTaskDateUpdated ");
             isTaskDateUpdated = true;
             DateTimePickerFragment dateTimePickerFragment = DateTimePickerFragment.newInstance(task.getDate());
             dateTimePickerFragment.setTargetFragment(TaskDetailsFragment.this, REQUEST_CODE_DATE);
@@ -183,7 +175,12 @@ public class TaskDetailsFragment extends Fragment {
     }
 
     private void showAlertDialog(String title) {
-        TaskDetailAlertDialogFragment taskDetailAlertDialogFragment = TaskDetailAlertDialogFragment.newInstance(title);
-        taskDetailAlertDialogFragment.show(getFragmentManager(), ALERT_DIALOG_FRAGMENT_TAG);
+        if (isTaskNameUpdated || isTaskDateUpdated || isTaskCompletionStatusUpdated) {
+            TaskDetailAlertDialogFragment taskDetailAlertDialogFragment = TaskDetailAlertDialogFragment.newInstance(title);
+            taskDetailAlertDialogFragment.show(getFragmentManager(), ALERT_DIALOG_FRAGMENT_TAG);
+        } else {
+            startActivity(TaskListActivity.newIntent(getActivity()));
+        }
+
     }
 }

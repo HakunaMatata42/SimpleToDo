@@ -29,11 +29,11 @@ public class TaskDetailAlertDialogFragment extends DialogFragment {
         String title = getArguments().getString(ARG_TITLE);
         AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(getActivity());
         alertDialogBuilder.setTitle(title);
-        alertDialogBuilder.setMessage("Are you sure?");
+        alertDialogBuilder.setMessage("Quit without saving?");
         alertDialogBuilder.setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener(){
             @Override
             public void onClick(DialogInterface dialog, int which) {
-
+                getActivity().finish();
             }
         });
         alertDialogBuilder.setNegativeButton(android.R.string.no, new DialogInterface.OnClickListener(){
@@ -44,5 +44,9 @@ public class TaskDetailAlertDialogFragment extends DialogFragment {
         });
         alertDialogBuilder.setCancelable(false);
         return alertDialogBuilder.create();
+    }
+
+    public static void showAlert() {
+
     }
 }

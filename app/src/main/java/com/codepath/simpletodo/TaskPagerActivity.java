@@ -64,4 +64,11 @@ public class TaskPagerActivity extends AppCompatActivity {
             return tasks.size();
         }
     }
+
+    @Override
+    public void onBackPressed() {
+        Log.i("TaskPagerActivity", "onBackPressed()");
+        TaskDetailAlertDialogFragment taskDetailAlertDialogFragment = TaskDetailAlertDialogFragment.newInstance("Are you sure?");
+        taskDetailAlertDialogFragment.show(getSupportFragmentManager(), "BackTitle");
+    }
 }
