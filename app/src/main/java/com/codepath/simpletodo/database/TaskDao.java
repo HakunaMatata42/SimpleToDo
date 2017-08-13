@@ -15,7 +15,6 @@ import com.codepath.simpletodo.database.TaskDatabaseSchema.TaskTable;
 
 public class TaskDao {
     private static TaskDao taskDao;
-    private TaskDatabaseHelper taskDatabaseHelper;
     private SQLiteDatabase dataBase;
     private Context context;
 
@@ -53,8 +52,6 @@ public class TaskDao {
     public void updateTask(Task task) {
         String uuidString = task.getUuid().toString();
         ContentValues contentValues = createTaskContentValues(task);
-        Log.i("TaskDetailsFragment", "TaskDao.updateTask id = " + task.getUuid() + "task date = " + task.getDate());
-        Log.i("TaskDetailsFragment", "contentValues date - " + contentValues.getAsString(TaskTable.Cols.COMPLETION_DATE));
         dataBase.update(TaskTable.NAME,
                 contentValues,
                 TaskTable.Cols.UUID + " = ?",
@@ -86,6 +83,7 @@ public class TaskDao {
         contentValues.put(TaskTable.Cols.NAME, task.getName());
         contentValues.put(TaskTable.Cols.COMPLETION_DATE, task.getDate().getTime());
         contentValues.put(TaskTable.Cols.COMPLETED, task.isComplete());
+        //contentValues.put(TaskTable.Cols.CATEGORY, task.getCategory());
         return contentValues;
     }
 

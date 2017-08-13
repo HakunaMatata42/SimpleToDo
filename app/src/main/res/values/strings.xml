@@ -3,12 +3,13 @@
     <string name="addItemHint">Enter a new item</string>
     <string name="title_activity_task_details">Task Details</string>
 
-    <string name="task_name_title_label">Task</string>
+    <string name="task_name_list_separator_label">Task</string>
     <string name="task_name_hint">Enter task </string>
-    <string name="task_details_label">Details</string>
+    <string name="task_details_list_separator_label">Details</string>
     <string name="task_completed_label">Completed</string>
     <string name="task_date_label">Date:</string>
     <string name="task_time_label">Time:</string>
+    <string name="task_category_list_separator_label">Category</string>
 
     <string name="new_task_label">New Task</string>
     <string name="delete_task_label">Delete Task</string>

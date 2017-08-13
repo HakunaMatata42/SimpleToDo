@@ -15,10 +15,14 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.EditText;
+import android.widget.Spinner;
+import android.widget.SpinnerAdapter;
 
 import com.codepath.simpletodo.database.TaskDao;
 
@@ -31,14 +35,18 @@ import java.util.UUID;
  */
 public class TaskDetailsFragment extends Fragment {
 
-    private Task task;
-    private TaskDao taskDao;
     private EditText etTaskName;
     private Button btnTaskCompletionDate;
     private CheckBox chbIsTaskComplete;
+    private Spinner spnTaskCategory;
+    private String[] categories = new String[] {"LOW", "MEDIUM", "HIGH"};
+
+    private Task task;
+    private TaskDao taskDao;
     private boolean isTaskNameUpdated;
     private boolean isTaskDateUpdated;
     private boolean isTaskCompletionStatusUpdated;
+    private boolean isTaskCategoryUpdated;
 
     public static final String ARG_TASK_ID = "task_id";
     private static final String TAG = "TaskDetailsFragment";
@@ -67,7 +75,6 @@ public class TaskDetailsFragment extends Fragment {
         isTaskDateUpdated = false;
         isTaskCompletionStatusUpdated = false;
         UUID taskId = (UUID) getArguments().getSerializable(ARG_TASK_ID);
-        Log.i(TAG, "onCreate taskId " + taskId);
         taskDao = TaskDao.getInstance(getActivity());
         task = taskDao.getTaskById(taskId);
     }
@@ -97,6 +104,12 @@ public class TaskDetailsFragment extends Fragment {
         chbIsTaskComplete = (CheckBox) view.findViewById(R.id.chbIsTaskComplete);
         chbIsTaskComplete.setChecked(task.isComplete());
         chbIsTaskComplete.setOnCheckedChangeListener(new TaskCompleteOnCheckedChangeListener());
+
+        spnTaskCategory = (Spinner) view.findViewById(R.id.spnTaskCategory);
+        ArrayAdapter<String> adapter = new ArrayAdapter<String>(getActivity(),
+                android.R.layout.simple_spinner_item, categories);
+        spnTaskCategory.setAdapter(adapter);
+        spnTaskCategory.setOnItemSelectedListener(new CategoryOnItemSelectedListener());
         return view;
     }
 
@@ -139,6 +152,15 @@ public class TaskDetailsFragment extends Fragment {
         btnTaskCompletionDate.setText(task.getDate().toString());
     }
 
+    private void showAlertDialog(String title) {
+        if (isTaskNameUpdated || isTaskDateUpdated || isTaskCompletionStatusUpdated || isTaskCategoryUpdated) {
+            TaskDetailAlertDialogFragment taskDetailAlertDialogFragment = TaskDetailAlertDialogFragment.newInstance(title);
+            taskDetailAlertDialogFragment.show(getFragmentManager(), ALERT_DIALOG_FRAGMENT_TAG);
+        } else {
+            startActivity(TaskListActivity.newIntent(getActivity()));
+        }
+    }
+
     private class TaskNameTextWatcher implements TextWatcher {
 
         @Override
@@ -174,13 +196,18 @@ public class TaskDetailsFragment extends Fragment {
         }
     }
 
-    private void showAlertDialog(String title) {
-        if (isTaskNameUpdated || isTaskDateUpdated || isTaskCompletionStatusUpdated) {
-            TaskDetailAlertDialogFragment taskDetailAlertDialogFragment = TaskDetailAlertDialogFragment.newInstance(title);
-            taskDetailAlertDialogFragment.show(getFragmentManager(), ALERT_DIALOG_FRAGMENT_TAG);
-        } else {
-            startActivity(TaskListActivity.newIntent(getActivity()));
+    private class CategoryOnItemSelectedListener implements AdapterView.OnItemSelectedListener {
+        @Override
+        public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+            spnTaskCategory.setSelection(position);
+            task.setCategory((String)spnTaskCategory.getSelectedItem());
+            isTaskCategoryUpdated = true;
         }
 
+        @Override
+        public void onNothingSelected(AdapterView<?> parent) {
+
+        }
     }
+
 }

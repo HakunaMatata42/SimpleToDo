@@ -10,6 +10,7 @@ public class TaskDatabaseSchema {
             public static final String NAME = "name";
             public static final String COMPLETION_DATE = "completionDate";
             public static final String COMPLETED = "completed";
+            public static final String CATEGORY = "category";
         }
     }
 }

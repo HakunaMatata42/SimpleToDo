@@ -39,6 +39,7 @@ public class TaskListFragment extends Fragment {
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setHasOptionsMenu(true);
+        taskDao = TaskDao.getInstance(getActivity());
     }
 
     @Override
@@ -52,7 +53,6 @@ public class TaskListFragment extends Fragment {
     }
 
     private void updateUI() {
-        taskDao = TaskDao.getInstance(getActivity());
         List<Task> tasks = taskDao.getTasks();
         if (taskAdapter == null) {
             taskAdapter = new TaskAdapter(tasks);
