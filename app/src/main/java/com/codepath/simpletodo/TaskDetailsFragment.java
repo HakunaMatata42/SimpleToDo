@@ -22,9 +22,6 @@ import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.Spinner;
-import android.widget.SpinnerAdapter;
-
-import com.codepath.simpletodo.database.TaskDao;
 
 import java.util.Date;
 import java.util.UUID;
@@ -42,7 +39,6 @@ public class TaskDetailsFragment extends Fragment {
     private String[] categories = new String[] {"LOW", "MEDIUM", "HIGH"};
 
     private Task task;
-    private TaskDao taskDao;
     private boolean isTaskNameUpdated;
     private boolean isTaskDateUpdated;
     private boolean isTaskCompletionStatusUpdated;
@@ -75,8 +71,7 @@ public class TaskDetailsFragment extends Fragment {
         isTaskDateUpdated = false;
         isTaskCompletionStatusUpdated = false;
         UUID taskId = (UUID) getArguments().getSerializable(ARG_TASK_ID);
-        taskDao = TaskDao.getInstance(getActivity());
-        task = taskDao.getTaskById(taskId);
+        task = TaskDatabaseUtil.getTaskByUuid(taskId);
     }
 
     @Override
@@ -121,14 +116,12 @@ public class TaskDetailsFragment extends Fragment {
                 return true;
 
             case R.id.save_task:
-                taskDao = TaskDao.getInstance(getActivity());
-                taskDao.updateTask(task);
+                task.save();
                 startActivity(TaskListActivity.newIntent(getActivity()));
                 return true;
 
             case R.id.delete_task:
-                taskDao = TaskDao.getInstance(getActivity());
-                taskDao.deleteTask(task);
+                task.delete();
                 startActivity(TaskListActivity.newIntent(getActivity()));
                 return true;
 

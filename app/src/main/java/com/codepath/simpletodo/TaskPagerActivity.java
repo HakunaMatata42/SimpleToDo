@@ -2,15 +2,13 @@ package com.codepath.simpletodo;
 
 import android.content.Context;
 import android.content.Intent;
+import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentStatePagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
 import android.util.Log;
-
-import com.codepath.simpletodo.database.TaskDao;
 
 import java.util.List;
 import java.util.UUID;
@@ -30,7 +28,7 @@ public class TaskPagerActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_task_pager);
         viewPager = (ViewPager) findViewById(R.id.task_view_pager);
-        List<Task> tasks = TaskDao.getInstance(this).getTasks();
+        List<Task> tasks = TaskDatabaseUtil.getTasks();
         viewPager.setAdapter(new TaskViewPagerAdapter(getSupportFragmentManager(), tasks));
         setCurrentItem(tasks);
     }

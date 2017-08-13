@@ -1,13 +1,29 @@
 package com.codepath.simpletodo;
 
+import com.raizlabs.android.dbflow.annotation.Column;
+import com.raizlabs.android.dbflow.annotation.PrimaryKey;
+import com.raizlabs.android.dbflow.annotation.Table;
+import com.raizlabs.android.dbflow.structure.BaseModel;
+
 import java.util.Date;
 import java.util.UUID;
 
-public class Task {
+@Table(database = TaskDatabase.class)
+public class Task extends BaseModel {
+    @Column
+    @PrimaryKey
     private UUID uuid;
+
+    @Column
     private String name;
+
+    @Column
     private Date date;
+
+    @Column
     private boolean isComplete;
+
+    @Column
     private String category;
 
     public Task() {
@@ -17,6 +33,10 @@ public class Task {
     public Task(UUID uuid) {
         this.uuid = uuid;
         this.date = new Date();
+    }
+
+    public void setUuid(UUID uuid) {
+        this.uuid = uuid;
     }
 
     public void setName(String name) {

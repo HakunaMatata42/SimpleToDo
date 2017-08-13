@@ -16,8 +16,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
-import com.codepath.simpletodo.database.TaskDao;
-
 import java.util.List;
 import java.util.UUID;
 
@@ -30,7 +28,6 @@ public class TaskListFragment extends Fragment {
     private static final String TAG = "TaskListFragment";
     private RecyclerView recyclerView;
     private TaskAdapter taskAdapter;
-    private TaskDao taskDao;
     public TaskListFragment() {
         // Required empty public constructor
     }
@@ -39,7 +36,6 @@ public class TaskListFragment extends Fragment {
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setHasOptionsMenu(true);
-        taskDao = TaskDao.getInstance(getActivity());
     }
 
     @Override
@@ -53,10 +49,11 @@ public class TaskListFragment extends Fragment {
     }
 
     private void updateUI() {
-        List<Task> tasks = taskDao.getTasks();
+        List<Task> tasks = TaskDatabaseUtil.getTasks();
+
         if (taskAdapter == null) {
             taskAdapter = new TaskAdapter(tasks);
-            recyclerView.setAdapter(new TaskAdapter(taskDao.getTasks()));
+            recyclerView.setAdapter(taskAdapter);
         } else {
             taskAdapter.setTasks(tasks);
             taskAdapter.notifyDataSetChanged();
@@ -74,7 +71,7 @@ public class TaskListFragment extends Fragment {
         switch (item.getItemId()) {
             case R.id.new_task:
                 Task task = new Task();
-                taskDao.addTask(task);
+                task.save();
                 startTaskPagerActivity(task.getUuid());
                 return true;
             default:
