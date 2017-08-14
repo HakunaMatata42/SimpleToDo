@@ -14,6 +14,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.CheckBox;
 import android.widget.TextView;
 
 import java.util.List;
@@ -87,12 +88,14 @@ public class TaskListFragment extends Fragment {
     private class ListItemTaskViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
         private TextView txvTaskName;
         private TextView txvTaskCompletionDate;
+        private CheckBox chbIsComplete;
         private Task task;
         public ListItemTaskViewHolder(View itemView) {
             super(itemView);
             itemView.setOnClickListener(this);
             txvTaskName = (TextView) itemView.findViewById(R.id.txvTaskName);
             txvTaskCompletionDate = (TextView) itemView.findViewById(R.id.txvTaskCompletionDate);
+            chbIsComplete = (CheckBox) itemView.findViewById(R.id.chbIsTaskComplete);
         }
 
         @Override
@@ -105,6 +108,7 @@ public class TaskListFragment extends Fragment {
             this.task = task;
             txvTaskName.setText(this.task.getName());
             txvTaskCompletionDate.setText(this.task.getDate().toString());
+            chbIsComplete.setChecked(this.task.isComplete());
         }
     }
 

@@ -13,13 +13,15 @@
         android:id="@+id/etTaskName"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="@string/task_name_hint"/>
+        android:hint="@string/task_name_hint"
+        android:textSize="18sp"/>
 
     <CheckBox
         android:id="@+id/chbIsTaskComplete"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="@string/task_completed_label"/>
+        android:text="@string/task_completed_label"
+        android:textSize="18sp"/>
 
     <TextView
         style="?android:listSeparatorTextViewStyle"
@@ -43,5 +45,6 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:dropDownWidth="wrap_content"
-        android:spinnerMode="dropdown"/>
+        android:spinnerMode="dropdown"
+        android:textSize="18sp"/>
 </LinearLayout>
