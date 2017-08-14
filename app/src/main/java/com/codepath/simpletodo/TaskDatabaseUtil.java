@@ -13,6 +13,13 @@ public class TaskDatabaseUtil {
                 .queryList();
     }
 
+    public static List<Task> getIncompleteTasks() {
+        return SQLite.select()
+                .from(Task.class)
+                .where(Task_Table.isComplete.eq(false))
+                .queryList();
+    }
+
     public static Task getTaskByUuid(UUID uuid) {
         return SQLite.select()
                 .from(Task.class)

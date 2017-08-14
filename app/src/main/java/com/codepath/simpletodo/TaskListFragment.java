@@ -15,7 +15,9 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CheckBox;
+import android.widget.CompoundButton;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.util.List;
 import java.util.UUID;
@@ -50,8 +52,7 @@ public class TaskListFragment extends Fragment {
     }
 
     private void updateUI() {
-        List<Task> tasks = TaskDatabaseUtil.getTasks();
-
+        List<Task> tasks = TaskDatabaseUtil.getIncompleteTasks();
         if (taskAdapter == null) {
             taskAdapter = new TaskAdapter(tasks);
             recyclerView.setAdapter(taskAdapter);
@@ -88,6 +89,7 @@ public class TaskListFragment extends Fragment {
     private class ListItemTaskViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
         private TextView txvTaskName;
         private TextView txvTaskCompletionDate;
+        private TextView txvTaskCategory;
         private CheckBox chbIsComplete;
         private Task task;
         public ListItemTaskViewHolder(View itemView) {
@@ -95,7 +97,9 @@ public class TaskListFragment extends Fragment {
             itemView.setOnClickListener(this);
             txvTaskName = (TextView) itemView.findViewById(R.id.txvTaskName);
             txvTaskCompletionDate = (TextView) itemView.findViewById(R.id.txvTaskCompletionDate);
+            txvTaskCategory = (TextView) itemView.findViewById(R.id.txvTaskCategory);
             chbIsComplete = (CheckBox) itemView.findViewById(R.id.chbIsTaskComplete);
+            chbIsComplete.setOnCheckedChangeListener(new TaskCompleteListener());
         }
 
         @Override
@@ -108,7 +112,21 @@ public class TaskListFragment extends Fragment {
             this.task = task;
             txvTaskName.setText(this.task.getName());
             txvTaskCompletionDate.setText(this.task.getDate().toString());
+            txvTaskCategory.setText(this.task.getCategory());
             chbIsComplete.setChecked(this.task.isComplete());
+        }
+
+        private class TaskCompleteListener implements CompoundButton.OnCheckedChangeListener {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                if (isChecked) {
+                    task.setComplete(chbIsComplete.isChecked());
+                    task.save();
+                    Toast.makeText(getActivity(), task.getName() + " Completed", Toast.LENGTH_LONG)
+                            .show();
+                    updateUI();
+                }
+            }
         }
     }
 
