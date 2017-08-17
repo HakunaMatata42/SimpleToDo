@@ -5,6 +5,7 @@ import com.raizlabs.android.dbflow.annotation.PrimaryKey;
 import com.raizlabs.android.dbflow.annotation.Table;
 import com.raizlabs.android.dbflow.structure.BaseModel;
 
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.UUID;
 
@@ -65,6 +66,10 @@ public class Task extends BaseModel {
 
     public Date getDate() {
         return date;
+    }
+
+    public String formattedDate() {
+        return new SimpleDateFormat("E, MMM d, yyyy").format(date);
     }
 
     public boolean isComplete() {

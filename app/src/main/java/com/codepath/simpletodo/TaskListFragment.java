@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v4.view.MenuItemCompat;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -14,8 +15,10 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
+import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -31,6 +34,7 @@ public class TaskListFragment extends Fragment {
     private static final String TAG = "TaskListFragment";
     private RecyclerView recyclerView;
     private TaskAdapter taskAdapter;
+    private Spinner spnCategoryList;
     public TaskListFragment() {
         // Required empty public constructor
     }
@@ -47,12 +51,13 @@ public class TaskListFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_task_list, container, false);
         recyclerView = (RecyclerView) view.findViewById(R.id.tasklist_recycler_view);
         recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
-        updateUI();
+        Log.i(TAG, "onCreateView Calling updateUI");
+        updateUI(TaskDatabaseUtil.getIncompleteTasks());
         return view;
     }
 
-    private void updateUI() {
-        List<Task> tasks = TaskDatabaseUtil.getIncompleteTasks();
+    private void updateUI(List<Task> tasks) {
+        Log.i(TAG, "updateUI taskAdapter tasks size = " + tasks.size());
         if (taskAdapter == null) {
             taskAdapter = new TaskAdapter(tasks);
             recyclerView.setAdapter(taskAdapter);
@@ -66,6 +71,10 @@ public class TaskListFragment extends Fragment {
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         super.onCreateOptionsMenu(menu, inflater);
         inflater.inflate(R.menu.menu_main, menu);
+        MenuItem categoryList = menu.findItem(R.id.category_list);
+        spnCategoryList = (Spinner) MenuItemCompat.getActionView(categoryList);
+        spnCategoryList.setAdapter(Category.taskListArrayAdapter(getActivity()));
+        spnCategoryList.setOnItemSelectedListener(new CategorySelectListener());
     }
 
     @Override
@@ -111,7 +120,7 @@ public class TaskListFragment extends Fragment {
         public void bind(Task task) {
             this.task = task;
             txvTaskName.setText(this.task.getName());
-            txvTaskCompletionDate.setText(this.task.getDate().toString());
+            txvTaskCompletionDate.setText(this.task.formattedDate());
             txvTaskCategory.setText(this.task.getCategory());
             chbIsComplete.setChecked(this.task.isComplete());
         }
@@ -120,12 +129,14 @@ public class TaskListFragment extends Fragment {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 if (isChecked) {
-                    task.setComplete(chbIsComplete.isChecked());
-                    task.save();
+                    Log.i(TAG, "onCheckedChanged...");
                     Toast.makeText(getActivity(), task.getName() + " Completed", Toast.LENGTH_LONG)
                             .show();
-                    updateUI();
+                    //Add this when we have list for complete and incomplete tasks
+                    //updateUI();
                 }
+                task.setComplete(chbIsComplete.isChecked());
+                task.save();
             }
         }
     }
@@ -157,6 +168,20 @@ public class TaskListFragment extends Fragment {
         @Override
         public int getItemCount() {
             return tasks.size();
+        }
+    }
+
+    private class CategorySelectListener implements android.widget.AdapterView.OnItemSelectedListener {
+        @Override
+        public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+            spnCategoryList.setSelection(position);
+            Category category = (Category) spnCategoryList.getSelectedItem();
+            updateUI(TaskDatabaseUtil.getTasksByCategory(category));
+        }
+
+        @Override
+        public void onNothingSelected(AdapterView<?> parent) {
+
         }
     }
 

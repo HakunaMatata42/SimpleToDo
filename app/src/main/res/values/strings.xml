@@ -10,6 +10,7 @@
     <string name="task_date_label">Date:</string>
     <string name="task_category_list_separator_label">Category</string>
 
+    <string name="category_list_label">Categories</string>
     <string name="new_task_label">New Task</string>
     <string name="delete_task_label">Delete Task</string>
     <string name="save_task_label">Save Task</string>

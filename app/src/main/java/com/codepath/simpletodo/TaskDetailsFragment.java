@@ -23,6 +23,7 @@ import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.Spinner;
 
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.UUID;
 
@@ -36,7 +37,6 @@ public class TaskDetailsFragment extends Fragment {
     private Button btnTaskCompletionDate;
     private CheckBox chbIsTaskComplete;
     private Spinner spnTaskCategory;
-    private String[] categories = new String[] {"LOW", "MEDIUM", "HIGH"};
 
     private Task task;
     private boolean isTaskNameUpdated;
@@ -101,8 +101,7 @@ public class TaskDetailsFragment extends Fragment {
         chbIsTaskComplete.setOnCheckedChangeListener(new TaskCompleteOnCheckedChangeListener());
 
         spnTaskCategory = (Spinner) view.findViewById(R.id.spnTaskCategory);
-        ArrayAdapter<String> adapter = new ArrayAdapter<String>(getActivity(),
-                android.R.layout.simple_spinner_item, categories);
+        ArrayAdapter<Category> adapter = Category.arrayAdapter(getActivity());
         spnTaskCategory.setAdapter(adapter);
         spnTaskCategory.setOnItemSelectedListener(new CategoryOnItemSelectedListener());
         return view;
@@ -142,7 +141,7 @@ public class TaskDetailsFragment extends Fragment {
     }
 
     private void updateDateUi() {
-        btnTaskCompletionDate.setText(task.getDate().toString());
+        btnTaskCompletionDate.setText(task.formattedDate());
     }
 
     private void showAlertDialog(String title) {
@@ -193,7 +192,8 @@ public class TaskDetailsFragment extends Fragment {
         @Override
         public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
             spnTaskCategory.setSelection(position);
-            task.setCategory((String)spnTaskCategory.getSelectedItem());
+            Category selectedCategory = (Category) spnTaskCategory.getSelectedItem();
+            task.setCategory(selectedCategory.getName());
             isTaskCategoryUpdated = true;
         }
 

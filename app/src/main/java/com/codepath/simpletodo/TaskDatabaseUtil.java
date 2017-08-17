@@ -1,6 +1,8 @@
 package com.codepath.simpletodo;
 
 
+import android.util.Log;
+
 import com.raizlabs.android.dbflow.sql.language.SQLite;
 
 import java.util.List;
@@ -20,10 +22,34 @@ public class TaskDatabaseUtil {
                 .queryList();
     }
 
+    public static List<Task> getCompleteTasks() {
+        return SQLite.select()
+                .from(Task.class)
+                .where(Task_Table.isComplete.eq(true))
+                .queryList();
+    }
+
+    public static List<Task> getTasksByCategory(Category category) {
+        Log.i("TaskListFragment", "getTasksByCategory " + category);
+        if (category.getName().equals(Category.INCOMPLETE)) {
+            Log.i("TaskListFragment", "getTasksByCategory INCOMPLETE " + category);
+            return getIncompleteTasks();
+        } else if (category.getName().equals(Category.COMPLETE)) {
+            Log.i("TaskListFragment", "getTasksByCategory COMPLETE " + category);
+            return getCompleteTasks();
+        } else {
+            return SQLite.select()
+                    .from(Task.class)
+                    .where(Task_Table.category.eq(category.getName()))
+                    .queryList();
+        }
+    }
+
     public static Task getTaskByUuid(UUID uuid) {
         return SQLite.select()
                 .from(Task.class)
                 .where(Task_Table.uuid.eq(uuid))
                 .querySingle();
     }
+
 }
