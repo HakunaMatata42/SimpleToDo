@@ -104,6 +104,7 @@ public class TaskDetailsFragment extends Fragment {
         ArrayAdapter<Category> adapter = Category.arrayAdapter(getActivity());
         spnTaskCategory.setAdapter(adapter);
         spnTaskCategory.setSelection(0, false); //This is to stop the firing of OnItemSelectedListener when setting up the spinner
+        updateSpinnerUi();
         spnTaskCategory.setOnItemSelectedListener(new CategoryOnItemSelectedListener());
         return view;
     }
@@ -193,8 +194,7 @@ public class TaskDetailsFragment extends Fragment {
         @Override
         public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
             spnTaskCategory.setSelection(position);
-            Category selectedCategory = (Category) spnTaskCategory.getSelectedItem();
-            task.setCategory(selectedCategory.getName());
+            updateSpinnerUi();
             isTaskCategoryUpdated = true;
         }
 
@@ -202,6 +202,11 @@ public class TaskDetailsFragment extends Fragment {
         public void onNothingSelected(AdapterView<?> parent) {
 
         }
+    }
+
+    private void updateSpinnerUi() {
+        Category selectedCategory = (Category) spnTaskCategory.getSelectedItem();
+        task.setCategory(selectedCategory.getName());
     }
 
 }

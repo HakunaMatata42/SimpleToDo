@@ -39,9 +39,10 @@ public class Category {
                 new Category(HIGH),
                 new Category(Category.COMPLETE)
         };
-        return new ArrayAdapter<Category>(context,
-                android.R.layout.simple_spinner_dropdown_item,
+        ArrayAdapter<Category> categoryArrayAdapter = new ArrayAdapter<>(context,
+                R.layout.drop_down_textview,
                 categories);
+        return categoryArrayAdapter;
     }
 
     public UUID getUuid() {

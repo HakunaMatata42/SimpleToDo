@@ -27,6 +27,7 @@ import android.widget.Toast;
 import org.joda.time.DateTime;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -103,12 +104,14 @@ public class TaskListFragment extends Fragment {
         List<Task> thisWeeksTasks = new ArrayList<>();
         List<Task> nextWeeksTasks = new ArrayList<>();
         List<Task> laterTasks = new ArrayList<>();
+        Log.i(TAG, "taskByDate = =" + tasksByDate);
         for (Task task : tasks) {
-            if (isOverDue(task)) {
+            DateTime taskDate = new DateTime(task.getDate());
+            if (isOverDue(taskDate)) {
                 overdueTasks.add(task);
-            } else if (istThisWeek(task)) {
+            } else if (istThisWeek(taskDate)) {
                 thisWeeksTasks.add(task);
-            } else if (isNextWeek(task)){
+            } else if (isNextWeek(taskDate)){
                 nextWeeksTasks.add(task);
             } else {
                 laterTasks.add(task);
@@ -121,18 +124,19 @@ public class TaskListFragment extends Fragment {
         return tasksByDate;
     }
 
-    private boolean isOverDue(Task task) {
-        DateTime taskDate = new DateTime(task.getDate());
-        return taskDate.getDayOfYear() < TODAY.getDayOfYear() &&
-                taskDate.getWeekOfWeekyear() < TODAY.getWeekOfWeekyear();
+    private boolean isOverDue(DateTime taskDate) {
+        return taskDate.getYear() == TODAY.getYear() &&
+                taskDate.getDayOfYear() < TODAY.getDayOfYear();
     }
 
-    private boolean istThisWeek(Task task) {
-        return new DateTime(task.getDate()).getWeekOfWeekyear() == TODAY.getWeekOfWeekyear();
+    private boolean istThisWeek(DateTime taskDate) {
+        return taskDate.getYear() == TODAY.getYear() &&
+                taskDate.getWeekOfWeekyear() == TODAY.getWeekOfWeekyear();
     }
 
-    private boolean isNextWeek(Task task) {
-        return new DateTime(task.getDate()).getWeekOfWeekyear() == (TODAY.getWeekOfWeekyear() + 1);
+    private boolean isNextWeek(DateTime taskDate) {
+        return taskDate.getYear() == TODAY.getYear() &&
+                taskDate.getWeekOfWeekyear() == (TODAY.getWeekOfWeekyear() + 1);
     }
 
     private List<ListItem> consolidatedList(List<Task> tasks) {
@@ -189,10 +193,13 @@ public class TaskListFragment extends Fragment {
             txvTaskCompletionDate.setText(this.task.formattedDate());
             txvTaskCategory.setText(this.task.getCategory());
             chbIsComplete.setChecked(this.task.isComplete());
-            if (isOverDue(task)) {
+            if (isOverDue(new DateTime(task.getDate()))) {
                 int crimson = Color.parseColor("#DC143C");
                 txvTaskCompletionDate.setTextColor(crimson);
                 txvTaskCategory.setTextColor(crimson);
+            } else {
+                txvTaskCompletionDate.setTextColor(Color.BLACK);
+                txvTaskCategory.setTextColor(Color.BLACK);
             }
         }
 
