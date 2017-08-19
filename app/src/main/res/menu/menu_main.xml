@@ -7,10 +7,4 @@
         android:title="@string/category_list_label"
         app:actionViewClass="android.widget.Spinner"
         app:showAsAction="always"/>
-    <item
-        android:id="@+id/new_task"
-        android:icon="@drawable/ic_menu_add"
-        android:title="@string/new_task_label"
-        app:showAsAction="ifRoom|withText"/>
-
 </menu>

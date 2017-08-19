@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v7.widget.LinearLayoutManager;
@@ -46,6 +47,8 @@ public class TaskListFragment extends Fragment {
     private RecyclerView recyclerView;
     private TaskAdapter taskAdapter;
     private Spinner spnCategoryList;
+    private FloatingActionButton fabAddTask;
+
     public TaskListFragment() {
         // Required empty public constructor
     }
@@ -62,17 +65,16 @@ public class TaskListFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_task_list, container, false);
         recyclerView = (RecyclerView) view.findViewById(R.id.tasklist_recycler_view);
         recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
-        Log.i(TAG, "onCreateView Calling updateUI");
+        fabAddTask = (FloatingActionButton) view.findViewById(R.id.fabAddTask);
+        fabAddTask.setOnClickListener(new AddButtonOnClickListener());
         updateUI(TaskDatabaseUtil.getIncompleteTasks());
         return view;
     }
 
     private void updateUI(List<Task> tasks) {
         List<ListItem> listItems = consolidatedList(tasks);
-        Log.i(TAG, "updateUI taskAdapter listItems size = " + listItems.size());
         if (taskAdapter == null) {
             taskAdapter = new TaskAdapter(listItems);
-            Log.i(TAG, "setting taskAdapter");
             recyclerView.setAdapter(taskAdapter);
         } else {
             taskAdapter.setListItems(listItems);
@@ -88,19 +90,6 @@ public class TaskListFragment extends Fragment {
         spnCategoryList = (Spinner) MenuItemCompat.getActionView(categoryList);
         spnCategoryList.setAdapter(Category.taskListArrayAdapter(getActivity()));
         spnCategoryList.setOnItemSelectedListener(new CategorySelectListener());
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-            case R.id.new_task:
-                Task task = new Task();
-                task.save();
-                startTaskPagerActivity(task.getUuid());
-                return true;
-            default:
-                return super.onOptionsItemSelected(item);
-        }
     }
 
     private void startTaskPagerActivity(UUID taskId) {
@@ -297,4 +286,12 @@ public class TaskListFragment extends Fragment {
         }
     }
 
+    private class AddButtonOnClickListener implements View.OnClickListener {
+        @Override
+        public void onClick(View v) {
+            Task task = new Task();
+            task.save();
+            startTaskPagerActivity(task.getUuid());
+        }
+    }
 }
