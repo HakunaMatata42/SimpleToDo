@@ -1,0 +1,18 @@
+<resources>
+    <string name="app_name">SimpleToDo</string>
+    <string name="addItemHint">Enter a new item</string>
+    <string name="title_activity_task_details">Task Details</string>
+
+    <string name="task_name_list_separator_label">What is the task?</string>
+    <string name="task_name_hint">Enter task </string>
+    <string name="task_details_list_separator_label">Due Date</string>
+    <string name="task_completed_label">Completed</string>
+    <string name="task_date_label">Date:</string>
+    <string name="task_category_list_separator_label">Category</string>
+
+    <string name="category_list_label">Categories</string>
+    <string name="new_task_label">New Task</string>
+    <string name="delete_task_label">Delete Task</string>
+    <string name="save_task_label">Save Task</string>
+
+</resources>

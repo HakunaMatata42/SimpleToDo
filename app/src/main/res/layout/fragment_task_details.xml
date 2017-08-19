@@ -1,0 +1,50 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:layout_width="match_parent"
+              android:layout_height="match_parent"
+              android:orientation="vertical">
+
+    <TextView
+        style="?android:listSeparatorTextViewStyle"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/task_name_list_separator_label"/>
+
+    <EditText
+        android:id="@+id/etTaskName"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="@string/task_name_hint"
+        android:textSize="18sp"/>
+
+    <CheckBox
+        android:id="@+id/chbIsTaskComplete"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/task_completed_label"
+        android:textSize="18sp"/>
+
+    <TextView
+        style="?android:listSeparatorTextViewStyle"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/task_details_list_separator_label"/>
+
+    <Button
+        android:id="@+id/btnTaskCompletionDate"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"/>
+
+    <TextView
+        style="?android:listSeparatorTextViewStyle"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/task_category_list_separator_label"/>
+
+    <Spinner
+        android:id="@+id/spnTaskCategory"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:dropDownWidth="wrap_content"
+        android:spinnerMode="dropdown"
+        android:textSize="18sp"/>
+</LinearLayout>
