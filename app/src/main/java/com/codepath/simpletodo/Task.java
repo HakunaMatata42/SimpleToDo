@@ -10,7 +10,7 @@ import java.util.Date;
 import java.util.UUID;
 
 @Table(database = TaskDatabase.class)
-public class Task extends BaseModel {
+public class Task extends BaseModel implements ListItem {
     @Column
     @PrimaryKey
     private UUID uuid;
@@ -78,5 +78,10 @@ public class Task extends BaseModel {
 
     public String getCategory() {
         return category;
+    }
+
+    @Override
+    public int getType() {
+        return ListItem.TYPE_TASK_DATA;
     }
 }

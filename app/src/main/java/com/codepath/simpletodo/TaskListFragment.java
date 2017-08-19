@@ -2,6 +2,7 @@ package com.codepath.simpletodo;
 
 
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -22,6 +23,11 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import org.joda.time.DateTime;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.UUID;
 
@@ -32,6 +38,11 @@ import java.util.UUID;
 public class TaskListFragment extends Fragment {
 
     private static final String TAG = "TaskListFragment";
+    private static final String OVERDUE = "OverDue";
+    private static final String THISWEEK = "This Week";
+    private static final String NEXTWEEK = "Next Week";
+    private static final String LATER = "Later";
+    private static final DateTime TODAY = new DateTime();
     private RecyclerView recyclerView;
     private TaskAdapter taskAdapter;
     private Spinner spnCategoryList;
@@ -57,12 +68,14 @@ public class TaskListFragment extends Fragment {
     }
 
     private void updateUI(List<Task> tasks) {
-        Log.i(TAG, "updateUI taskAdapter tasks size = " + tasks.size());
+        List<ListItem> listItems = consolidatedList(tasks);
+        Log.i(TAG, "updateUI taskAdapter listItems size = " + listItems.size());
         if (taskAdapter == null) {
-            taskAdapter = new TaskAdapter(tasks);
+            taskAdapter = new TaskAdapter(listItems);
+            Log.i(TAG, "setting taskAdapter");
             recyclerView.setAdapter(taskAdapter);
         } else {
-            taskAdapter.setTasks(tasks);
+            taskAdapter.setListItems(listItems);
             taskAdapter.notifyDataSetChanged();
         }
     }
@@ -95,6 +108,69 @@ public class TaskListFragment extends Fragment {
         startActivity(intent);
     }
 
+    private HashMap<String, List<Task>> groupTasksByDateCategory(List<Task> tasks) {
+        HashMap<String, List<Task>> tasksByDate = new LinkedHashMap<>();
+        List<Task> overdueTasks = new ArrayList<>();
+        List<Task> thisWeeksTasks = new ArrayList<>();
+        List<Task> nextWeeksTasks = new ArrayList<>();
+        List<Task> laterTasks = new ArrayList<>();
+        for (Task task : tasks) {
+            DateTime taskDate = new DateTime(task.getDate());
+            if (isOverDue(task)) {
+                overdueTasks.add(task);
+            } else if (istThisWeek(task)) {
+                thisWeeksTasks.add(task);
+            } else if (isNextWeek(task)){
+                nextWeeksTasks.add(task);
+            } else {
+                laterTasks.add(task);
+            }
+        }
+        tasksByDate.put(OVERDUE, overdueTasks);
+        tasksByDate.put(THISWEEK, thisWeeksTasks);
+        tasksByDate.put(NEXTWEEK, nextWeeksTasks);
+        tasksByDate.put(LATER, laterTasks);
+        return tasksByDate;
+    }
+
+    private boolean isOverDue(Task task) {
+        return new DateTime(task.getDate()).getWeekOfWeekyear() < TODAY.getWeekOfWeekyear();
+    }
+
+    private boolean istThisWeek(Task task) {
+        return new DateTime(task.getDate()).getWeekOfWeekyear() == TODAY.getWeekOfWeekyear();
+    }
+
+    private boolean isNextWeek(Task task) {
+        return new DateTime(task.getDate()).getWeekOfWeekyear() == (TODAY.getWeekOfWeekyear() + 1);
+    }
+
+    private List<ListItem> consolidatedList(List<Task> tasks) {
+        List<ListItem> listItems = new ArrayList<>();
+        HashMap<String, List<Task>> tasksByDateCategory = groupTasksByDateCategory(tasks);
+        for (String dateCategory : tasksByDateCategory.keySet()) {
+            List<Task> tasksByDate = tasksByDateCategory.get(dateCategory);
+            if (tasksByDate.size() > 0) {
+                listItems.add(new DateHeader(dateCategory));
+                for (Task task : tasksByDate) {
+                    listItems.add(task);
+                }
+            }
+        }
+        return listItems;
+    }
+
+    private class DateHeaderViewHolder extends RecyclerView.ViewHolder {
+        private TextView txvDateHeader;
+        public DateHeaderViewHolder(View itemView) {
+            super(itemView);
+            txvDateHeader = (TextView) itemView.findViewById(R.id.txvDateHeader);
+        }
+
+        public void bind(DateHeader dateHeader) {
+            txvDateHeader.setText(dateHeader.getCategoryName());
+        }
+    }
     private class ListItemTaskViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
         private TextView txvTaskName;
         private TextView txvTaskCompletionDate;
@@ -123,6 +199,12 @@ public class TaskListFragment extends Fragment {
             txvTaskCompletionDate.setText(this.task.formattedDate());
             txvTaskCategory.setText(this.task.getCategory());
             chbIsComplete.setChecked(this.task.isComplete());
+            if (isOverDue(task)) {
+
+                int crimson = Color.parseColor("#DC143C");
+                txvTaskCompletionDate.setTextColor(crimson);
+                txvTaskCategory.setTextColor(crimson);
+            }
         }
 
         private class TaskCompleteListener implements CompoundButton.OnCheckedChangeListener {
@@ -130,10 +212,10 @@ public class TaskListFragment extends Fragment {
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 if (isChecked) {
                     Log.i(TAG, "onCheckedChanged...");
-                    Toast.makeText(getActivity(), task.getName() + " Completed", Toast.LENGTH_LONG)
+                    Toast.makeText(getActivity(), task.getName() + " Completed", Toast.LENGTH_SHORT)
                             .show();
-                    //Add this when we have list for complete and incomplete tasks
-                    //updateUI();
+                    //Add this when we have list for complete and incomplete listItems
+                    //updateUI(TaskDatabaseUtil.getIncompleteTasks());
                 }
                 task.setComplete(chbIsComplete.isChecked());
                 task.save();
@@ -141,33 +223,65 @@ public class TaskListFragment extends Fragment {
         }
     }
 
-    private class TaskAdapter extends RecyclerView.Adapter<ListItemTaskViewHolder> {
-        private List<Task> tasks;
+    private class TaskAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
+        private List<ListItem> listItems;
 
-        public TaskAdapter(List<Task> tasks) {
-            this.tasks = tasks;
+        public TaskAdapter(List<ListItem> listItems) {
+            this.listItems = listItems;
         }
 
-        public void setTasks(List<Task> tasks) {
-            this.tasks = tasks;
-        }
-
-        @Override
-        public ListItemTaskViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-            View view = LayoutInflater.from(parent.getContext())
-                    .inflate(R.layout.list_item_task, parent, false);
-            return new ListItemTaskViewHolder(view);
+        public void setListItems(List<ListItem> listItems) {
+            this.listItems = listItems;
         }
 
         @Override
-        public void onBindViewHolder(ListItemTaskViewHolder holder, int position) {
-            Log.i(TAG, "onBindViewHolder position = " + position);
-            holder.bind(tasks.get(position));
+        public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+            LayoutInflater inflater = LayoutInflater.from(parent.getContext());
+
+            switch (viewType) {
+                case ListItem.TYPE_DATE_CATEGORY: {
+                    View itemView = inflater.inflate(R.layout.list_item_dateheader, parent, false);
+                    return new DateHeaderViewHolder(itemView);
+                }
+                case ListItem.TYPE_TASK_DATA: {
+                    View itemView = inflater.inflate(R.layout.list_item_task, parent, false);
+                    return new ListItemTaskViewHolder(itemView);
+                }
+                default:
+                    throw new IllegalStateException("UnSupported type in onCreateViewHolder");
+            }
+        }
+
+        @Override
+        public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
+            int type = getItemViewType(position);
+            switch (type) {
+                case ListItem.TYPE_DATE_CATEGORY: {
+                    Log.i(TAG, listItems.get(position).toString());
+                    DateHeader dateHeader = (DateHeader) listItems.get(position);
+                    DateHeaderViewHolder dateHeaderViewHolder = (DateHeaderViewHolder) holder;
+                    dateHeaderViewHolder.bind(dateHeader);
+                    break;
+                }
+                case ListItem.TYPE_TASK_DATA: {
+                    Task task = (Task) listItems.get(position);
+                    ListItemTaskViewHolder listItemTaskViewHolder = (ListItemTaskViewHolder) holder;
+                    listItemTaskViewHolder.bind(task);
+                    break;
+                }
+                default:
+                    throw new IllegalStateException("Unsupported type in onBindViewHolder");
+            }
         }
 
         @Override
         public int getItemCount() {
-            return tasks.size();
+            return listItems.size();
+        }
+
+        @Override
+        public int getItemViewType(int position) {
+            return listItems.get(position).getType();
         }
     }
 
