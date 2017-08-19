@@ -115,7 +115,6 @@ public class TaskListFragment extends Fragment {
         List<Task> nextWeeksTasks = new ArrayList<>();
         List<Task> laterTasks = new ArrayList<>();
         for (Task task : tasks) {
-            DateTime taskDate = new DateTime(task.getDate());
             if (isOverDue(task)) {
                 overdueTasks.add(task);
             } else if (istThisWeek(task)) {
@@ -134,7 +133,9 @@ public class TaskListFragment extends Fragment {
     }
 
     private boolean isOverDue(Task task) {
-        return new DateTime(task.getDate()).getWeekOfWeekyear() < TODAY.getWeekOfWeekyear();
+        DateTime taskDate = new DateTime(task.getDate());
+        return taskDate.getDayOfYear() < TODAY.getDayOfYear() &&
+                taskDate.getWeekOfWeekyear() < TODAY.getWeekOfWeekyear();
     }
 
     private boolean istThisWeek(Task task) {
@@ -200,7 +201,6 @@ public class TaskListFragment extends Fragment {
             txvTaskCategory.setText(this.task.getCategory());
             chbIsComplete.setChecked(this.task.isComplete());
             if (isOverDue(task)) {
-
                 int crimson = Color.parseColor("#DC143C");
                 txvTaskCompletionDate.setTextColor(crimson);
                 txvTaskCategory.setTextColor(crimson);
@@ -210,12 +210,10 @@ public class TaskListFragment extends Fragment {
         private class TaskCompleteListener implements CompoundButton.OnCheckedChangeListener {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                if (isChecked) {
-                    Log.i(TAG, "onCheckedChanged...");
+                // buttonView.isPressed ensures that onCheckChanged is called only when we tick the checkbox
+                if (isChecked && buttonView.isPressed()) {
                     Toast.makeText(getActivity(), task.getName() + " Completed", Toast.LENGTH_SHORT)
                             .show();
-                    //Add this when we have list for complete and incomplete listItems
-                    //updateUI(TaskDatabaseUtil.getIncompleteTasks());
                 }
                 task.setComplete(chbIsComplete.isChecked());
                 task.save();
