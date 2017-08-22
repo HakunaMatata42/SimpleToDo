@@ -13,9 +13,10 @@ import android.util.Log;
 import java.util.List;
 import java.util.UUID;
 
-public class TaskPagerActivity extends AppCompatActivity {
+public class TaskPagerActivity extends AppCompatActivity implements TaskDetailsFragment.BackPressListener {
     public static final String EXTRA_TASK_ID = "taskId";
     private ViewPager viewPager;
+    private boolean isTaskUpdated;
 
     public static Intent newIntent(Context context, UUID taskId) {
         Intent intent = new Intent(context, TaskPagerActivity.class);
@@ -28,6 +29,7 @@ public class TaskPagerActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_task_pager);
         viewPager = (ViewPager) findViewById(R.id.task_view_pager);
+        isTaskUpdated = false;
         List<Task> tasks = TaskDatabaseUtil.getTasks();
         viewPager.setAdapter(new TaskViewPagerAdapter(getSupportFragmentManager(), tasks));
         setCurrentItem(tasks);
@@ -41,6 +43,11 @@ public class TaskPagerActivity extends AppCompatActivity {
                 break;
             }
         }
+    }
+
+    @Override
+    public void backButtonPressed(boolean isTaskUpdated) {
+        this.isTaskUpdated = isTaskUpdated;
     }
 
     private class TaskViewPagerAdapter extends FragmentStatePagerAdapter {
@@ -65,8 +72,12 @@ public class TaskPagerActivity extends AppCompatActivity {
 
     @Override
     public void onBackPressed() {
-        Log.i("TaskPagerActivity", "onBackPressed()");
-        TaskDetailAlertDialogFragment taskDetailAlertDialogFragment = TaskDetailAlertDialogFragment.newInstance("Are you sure?");
-        taskDetailAlertDialogFragment.show(getSupportFragmentManager(), "BackTitle");
+        if (isTaskUpdated) {
+            TaskDetailAlertDialogFragment taskDetailAlertDialogFragment = TaskDetailAlertDialogFragment.newInstance("Are you sure?");
+            taskDetailAlertDialogFragment.show(getSupportFragmentManager(), "TaskPagerBackPressTitle");
+        } else {
+            Intent intent = TaskListActivity.newIntent(TaskPagerActivity.this);
+            startActivity(intent);
+        }
     }
 }

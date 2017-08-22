@@ -45,8 +45,4 @@ public class TaskDetailAlertDialogFragment extends DialogFragment {
         alertDialogBuilder.setCancelable(false);
         return alertDialogBuilder.create();
     }
-
-    public static void showAlert() {
-
-    }
 }
