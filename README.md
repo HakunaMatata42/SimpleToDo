@@ -4,7 +4,7 @@
 
 Submitted by: **Naveen G**
 
-Time spent: **30** hours spent in total
+Time spent: **20** hours spent in total
 
 ## User Stories
 
@@ -30,14 +30,15 @@ The following **additional** features are implemented:
 * Using DialogFragment for alert dialog
 * Using RecyclerView instead of listview
 * Grouping Tasks based on due date (Overdue, This Week, Next Week, Later)
-* Added PagerView for swiping through tasks
+* Added ViewPager for swiping through tasks
+* Added floating action button to add tasks
 
 
 ## Video Walkthrough
 
 Here's a walk through of implemented user stories:
 
-<img src='https://github.com/Trivikram1/SimpleToDo/blob/work-in-progress/gifs/SimpleToDo.gif?raw=true' title='Video Walkthrough' width='' alt='Video Walkthrough' />
+<img src='https://github.com/Trivikram1/SimpleToDo/blob/work-in-progress/gifs/SimpleToDo_2.gif?raw=true' title='Video Walkthrough' width='' alt='Video Walkthrough' />
 
 GIF created with [LiceCap](http://www.cockos.com/licecap/).
 
