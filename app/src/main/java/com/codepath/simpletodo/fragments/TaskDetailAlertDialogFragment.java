@@ -1,4 +1,4 @@
-package com.codepath.simpletodo;
+package com.codepath.simpletodo.fragments;
 
 
 import android.app.Dialog;
@@ -44,9 +44,5 @@ public class TaskDetailAlertDialogFragment extends DialogFragment {
         });
         alertDialogBuilder.setCancelable(false);
         return alertDialogBuilder.create();
-    }
-
-    public static void showAlert() {
-
     }
 }

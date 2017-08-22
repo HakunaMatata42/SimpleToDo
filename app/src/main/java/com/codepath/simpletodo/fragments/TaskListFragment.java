@@ -1,4 +1,4 @@
-package com.codepath.simpletodo;
+package com.codepath.simpletodo.fragments;
 
 
 import android.content.Intent;
@@ -24,10 +24,17 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.codepath.simpletodo.models.Category;
+import com.codepath.simpletodo.models.DateHeader;
+import com.codepath.simpletodo.models.ListItem;
+import com.codepath.simpletodo.R;
+import com.codepath.simpletodo.models.Task;
+import com.codepath.simpletodo.utils.TaskDatabaseUtil;
+import com.codepath.simpletodo.activities.TaskPagerActivity;
+
 import org.joda.time.DateTime;
 
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -178,7 +185,6 @@ public class TaskListFragment extends Fragment {
             txvTaskCompletionDate = (TextView) itemView.findViewById(R.id.txvTaskCompletionDate);
             txvTaskCategory = (TextView) itemView.findViewById(R.id.txvTaskCategory);
             chbIsComplete = (CheckBox) itemView.findViewById(R.id.chbIsTaskComplete);
-            chbIsComplete.setOnCheckedChangeListener(new TaskCompleteListener());
         }
 
         @Override
@@ -192,7 +198,10 @@ public class TaskListFragment extends Fragment {
             txvTaskName.setText(this.task.getName());
             txvTaskCompletionDate.setText(this.task.formattedDate());
             txvTaskCategory.setText(this.task.getCategory());
+            //Setting it null to prevent the Listener from triggering when setting the value
+            chbIsComplete.setOnCheckedChangeListener(null);
             chbIsComplete.setChecked(this.task.isComplete());
+            chbIsComplete.setOnCheckedChangeListener(new TaskCompleteListener());
             if (isOverDue(new DateTime(task.getDate()))) {
                 int crimson = Color.parseColor("#DC143C");
                 txvTaskCompletionDate.setTextColor(crimson);
@@ -213,6 +222,7 @@ public class TaskListFragment extends Fragment {
                 }
                 task.setComplete(chbIsComplete.isChecked());
                 task.save();
+                updateUI(TaskDatabaseUtil.getIncompleteTasks());
             }
         }
     }

@@ -1,5 +1,6 @@
-package com.codepath.simpletodo;
+package com.codepath.simpletodo.models;
 
+import com.codepath.simpletodo.database.TaskDatabase;
 import com.raizlabs.android.dbflow.annotation.Column;
 import com.raizlabs.android.dbflow.annotation.PrimaryKey;
 import com.raizlabs.android.dbflow.annotation.Table;

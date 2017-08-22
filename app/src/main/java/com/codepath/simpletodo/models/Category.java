@@ -1,8 +1,10 @@
-package com.codepath.simpletodo;
+package com.codepath.simpletodo.models;
 
 
 import android.content.Context;
 import android.widget.ArrayAdapter;
+
+import com.codepath.simpletodo.R;
 
 import java.util.UUID;
 
@@ -20,15 +22,25 @@ public class Category {
         this.name = name;
     }
 
+    static Category[] categories = {
+            new Category(LOW),
+            new Category(MEDIUM),
+            new Category(HIGH)
+    };
+
     public static ArrayAdapter<Category> arrayAdapter(Context context) {
-        Category[] categories = {
-                new Category(LOW),
-                new Category(MEDIUM),
-                new Category(HIGH)
-        };
         return new ArrayAdapter<Category>(context,
                 android.R.layout.simple_spinner_dropdown_item,
                 categories);
+    }
+
+    public static int getCategoryPosition(String categoryName) {
+        for (int i = 0; i < categories.length; i++) {
+            if (categories[i].getName().equalsIgnoreCase(categoryName)) {
+                return i;
+            }
+        }
+        return 0;
     }
 
     public static ArrayAdapter<Category> taskListArrayAdapter(Context context) {

@@ -1,8 +1,11 @@
-package com.codepath.simpletodo;
+package com.codepath.simpletodo.utils;
 
 
 import android.util.Log;
 
+import com.codepath.simpletodo.models.Category;
+import com.codepath.simpletodo.models.Task;
+import com.codepath.simpletodo.models.Task_Table;
 import com.raizlabs.android.dbflow.sql.language.SQLite;
 
 import java.util.List;

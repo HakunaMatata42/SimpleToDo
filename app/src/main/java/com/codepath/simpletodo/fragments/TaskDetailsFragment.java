@@ -1,7 +1,8 @@
-package com.codepath.simpletodo;
+package com.codepath.simpletodo.fragments;
 
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -22,8 +23,14 @@ import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.Spinner;
+import android.widget.Toast;
 
-import java.text.SimpleDateFormat;
+import com.codepath.simpletodo.models.Category;
+import com.codepath.simpletodo.R;
+import com.codepath.simpletodo.models.Task;
+import com.codepath.simpletodo.utils.TaskDatabaseUtil;
+import com.codepath.simpletodo.activities.TaskListActivity;
+
 import java.util.Date;
 import java.util.UUID;
 
@@ -39,16 +46,19 @@ public class TaskDetailsFragment extends Fragment {
     private Spinner spnTaskCategory;
 
     private Task task;
-    private boolean isTaskNameUpdated;
-    private boolean isTaskDateUpdated;
-    private boolean isTaskCompletionStatusUpdated;
-    private boolean isTaskCategoryUpdated;
+    private boolean isTaskUpdated;
 
     public static final String ARG_TASK_ID = "task_id";
     private static final String TAG = "TaskDetailsFragment";
     private static final String DATE_DIALOG_FRAGMENT_TAG = "DateDialog";
     private static final String ALERT_DIALOG_FRAGMENT_TAG = "AlertDialog";
     private static final int REQUEST_CODE_DATE = 0;
+
+    public static interface BackPressListener {
+        void backButtonPressed(boolean isTaskUpdated);
+    }
+
+    private BackPressListener backPressListener;
 
     public TaskDetailsFragment() {
         // Required empty public constructor
@@ -64,12 +74,16 @@ public class TaskDetailsFragment extends Fragment {
     }
 
     @Override
+    public void onAttach(Context context) {
+        super.onAttach(context);
+        this.backPressListener = (BackPressListener) context;
+    }
+
+    @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setHasOptionsMenu(true);
-        isTaskNameUpdated = false;
-        isTaskDateUpdated = false;
-        isTaskCompletionStatusUpdated = false;
+        isTaskUpdated = false;
         UUID taskId = (UUID) getArguments().getSerializable(ARG_TASK_ID);
         task = TaskDatabaseUtil.getTaskByUuid(taskId);
     }
@@ -84,9 +98,6 @@ public class TaskDetailsFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_task_details, container, false);
-        isTaskNameUpdated = false;
-        isTaskDateUpdated = false;
-        isTaskCompletionStatusUpdated = false;
 
         etTaskName = (EditText) view.findViewById(R.id.etTaskName);
         etTaskName.setText(task.getName());
@@ -103,7 +114,8 @@ public class TaskDetailsFragment extends Fragment {
         spnTaskCategory = (Spinner) view.findViewById(R.id.spnTaskCategory);
         ArrayAdapter<Category> adapter = Category.arrayAdapter(getActivity());
         spnTaskCategory.setAdapter(adapter);
-        spnTaskCategory.setSelection(0, false); //This is to stop the firing of OnItemSelectedListener when setting up the spinner
+        //This is to stop the firing of OnItemSelectedListener when setting up the spinner
+        spnTaskCategory.setSelection(Category.getCategoryPosition(task.getCategory()), false);
         updateSpinnerUi();
         spnTaskCategory.setOnItemSelectedListener(new CategoryOnItemSelectedListener());
         return view;
@@ -123,6 +135,9 @@ public class TaskDetailsFragment extends Fragment {
 
             case R.id.delete_task:
                 task.delete();
+                Toast.makeText(getActivity(),
+                        task.getName() + " has been deleted", Toast.LENGTH_SHORT)
+                        .show();
                 startActivity(TaskListActivity.newIntent(getActivity()));
                 return true;
 
@@ -147,7 +162,7 @@ public class TaskDetailsFragment extends Fragment {
     }
 
     private void showAlertDialog(String title) {
-        if (isTaskNameUpdated || isTaskDateUpdated || isTaskCompletionStatusUpdated || isTaskCategoryUpdated) {
+        if (isTaskUpdated) {
             TaskDetailAlertDialogFragment taskDetailAlertDialogFragment = TaskDetailAlertDialogFragment.newInstance(title);
             taskDetailAlertDialogFragment.show(getFragmentManager(), ALERT_DIALOG_FRAGMENT_TAG);
         } else {
@@ -166,7 +181,7 @@ public class TaskDetailsFragment extends Fragment {
 
         @Override
         public void afterTextChanged(Editable s) {
-            isTaskNameUpdated =  true;
+            setTaskUpdated(true);
             task.setName(s.toString());
         }
     }
@@ -175,7 +190,7 @@ public class TaskDetailsFragment extends Fragment {
 
         @Override
         public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-            isTaskCompletionStatusUpdated = true;
+            setTaskUpdated(true);
             task.setComplete(isChecked);
         }
     }
@@ -183,10 +198,17 @@ public class TaskDetailsFragment extends Fragment {
     private class DateButtonClickListener implements View.OnClickListener {
         @Override
         public void onClick(View v) {
-            isTaskDateUpdated = true;
+            setTaskUpdated(true);
             DateTimePickerFragment dateTimePickerFragment = DateTimePickerFragment.newInstance(task.getDate());
             dateTimePickerFragment.setTargetFragment(TaskDetailsFragment.this, REQUEST_CODE_DATE);
             dateTimePickerFragment.show(getFragmentManager(), DATE_DIALOG_FRAGMENT_TAG);
+        }
+    }
+
+    private void setTaskUpdated(boolean isTaskUpdated) {
+        this.isTaskUpdated = isTaskUpdated;
+        if (backPressListener != null) {
+            backPressListener.backButtonPressed(isTaskUpdated);
         }
     }
 
@@ -195,7 +217,7 @@ public class TaskDetailsFragment extends Fragment {
         public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
             spnTaskCategory.setSelection(position);
             updateSpinnerUi();
-            isTaskCategoryUpdated = true;
+            setTaskUpdated(true);
         }
 
         @Override

@@ -1,7 +1,9 @@
-package com.codepath.simpletodo;
+package com.codepath.simpletodo.activities;
 
 import android.support.v4.app.Fragment;
 import android.util.Log;
+
+import com.codepath.simpletodo.fragments.TaskDetailsFragment;
 
 import java.util.UUID;
 
