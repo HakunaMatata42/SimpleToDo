@@ -1,8 +1,10 @@
-package com.codepath.simpletodo;
+package com.codepath.simpletodo.models;
 
 
 import android.content.Context;
 import android.widget.ArrayAdapter;
+
+import com.codepath.simpletodo.R;
 
 import java.util.UUID;
 

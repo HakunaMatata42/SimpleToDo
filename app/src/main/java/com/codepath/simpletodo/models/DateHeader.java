@@ -1,4 +1,4 @@
-package com.codepath.simpletodo;
+package com.codepath.simpletodo.models;
 
 
 public class DateHeader implements ListItem {

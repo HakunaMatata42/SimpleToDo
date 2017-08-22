@@ -1,4 +1,4 @@
-package com.codepath.simpletodo;
+package com.codepath.simpletodo.fragments;
 
 
 import android.app.Dialog;

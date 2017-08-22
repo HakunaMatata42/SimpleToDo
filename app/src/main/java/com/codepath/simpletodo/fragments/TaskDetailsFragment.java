@@ -1,4 +1,4 @@
-package com.codepath.simpletodo;
+package com.codepath.simpletodo.fragments;
 
 
 import android.app.Activity;
@@ -25,7 +25,12 @@ import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.Toast;
 
-import java.text.SimpleDateFormat;
+import com.codepath.simpletodo.models.Category;
+import com.codepath.simpletodo.R;
+import com.codepath.simpletodo.models.Task;
+import com.codepath.simpletodo.utils.TaskDatabaseUtil;
+import com.codepath.simpletodo.activities.TaskListActivity;
+
 import java.util.Date;
 import java.util.UUID;
 
@@ -49,7 +54,7 @@ public class TaskDetailsFragment extends Fragment {
     private static final String ALERT_DIALOG_FRAGMENT_TAG = "AlertDialog";
     private static final int REQUEST_CODE_DATE = 0;
 
-    static interface BackPressListener {
+    public static interface BackPressListener {
         void backButtonPressed(boolean isTaskUpdated);
     }
 

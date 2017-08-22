@@ -1,4 +1,4 @@
-package com.codepath.simpletodo;
+package com.codepath.simpletodo.activities;
 
 import android.content.Context;
 import android.content.Intent;
@@ -8,7 +8,12 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentStatePagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
+
+import com.codepath.simpletodo.R;
+import com.codepath.simpletodo.models.Task;
+import com.codepath.simpletodo.utils.TaskDatabaseUtil;
+import com.codepath.simpletodo.fragments.TaskDetailAlertDialogFragment;
+import com.codepath.simpletodo.fragments.TaskDetailsFragment;
 
 import java.util.List;
 import java.util.UUID;
